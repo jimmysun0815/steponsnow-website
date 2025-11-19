@@ -20,5 +20,21 @@
         <priority>0.5</priority>
     </url>
     
+    <!-- 邮箱验证回调 -->
+    <url>
+        <loc>https://steponsnow.com/auth-callback.html</loc>
+        <lastmod>2025-11-19</lastmod>
+        <changefreq>yearly</changefreq>
+        <priority>0.3</priority>
+    </url>
+    
+    <!-- 密码重置 -->
+    <url>
+        <loc>https://steponsnow.com/reset-password.html</loc>
+        <lastmod>2025-11-19</lastmod>
+        <changefreq>yearly</changefreq>
+        <priority>0.3</priority>
+    </url>
+    
 </urlset>
 

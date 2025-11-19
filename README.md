@@ -29,6 +29,8 @@
 website/
 ├── index.html          # 主页
 ├── privacy.html        # 隐私政策页面
+├── auth-callback.html  # 邮箱验证回调页面
+├── reset-password.html # 密码重置页面
 ├── styles.css          # 样式文件
 ├── script.js           # JavaScript 脚本
 ├── sitemap.xml         # 网站地图（SEO）
@@ -264,6 +266,90 @@ aws cloudfront create-invalidation \
 4. 添加结构化数据（Schema.org）
 5. 确保 HTTPS
 6. 添加 robots.txt
+
+## 🔐 Supabase 邮件回调配置
+
+### 配置 Redirect URLs
+
+为了让邮箱验证和密码重置正常工作，需要在 Supabase Dashboard 中配置 Redirect URLs：
+
+1. 进入 Supabase Dashboard
+2. 选择你的项目
+3. 进入 `Authentication` → `URL Configuration`
+4. 在 `Redirect URLs` 中添加以下 URL：
+
+```
+https://steponsnow.com/auth-callback.html
+https://steponsnow.com/reset-password.html
+steponsnow://auth-callback
+```
+
+### 配置邮件模板
+
+#### 邮箱验证邮件（Confirm Email）
+
+进入 `Authentication` → `Email Templates` → `Confirm signup`
+
+修改邮件内容，将链接改为：
+
+```html
+<a href="{{ .SiteURL }}/auth-callback.html#access_token={{ .Token }}&type=signup">验证邮箱</a>
+```
+
+或者使用默认的 `{{ .ConfirmationURL }}`，但需要确保 Site URL 配置正确。
+
+#### 密码重置邮件（Reset Password）
+
+进入 `Authentication` → `Email Templates` → `Reset Password`
+
+修改邮件内容，将链接改为：
+
+```html
+<a href="{{ .SiteURL }}/reset-password.html">重置密码</a>
+```
+
+### 工作原理
+
+1. **邮箱验证流程**：
+   - 用户注册后收到验证邮件
+   - 点击链接跳转到 `auth-callback.html`
+   - 页面检测设备类型：
+     - 移动设备：自动跳转到 App (`steponsnow://auth-callback`)
+     - 桌面端：显示成功消息，提示在手机上打开 App
+
+2. **密码重置流程**：
+   - 用户在 App 中点击"忘记密码"
+   - 输入邮箱后收到重置邮件
+   - 点击链接跳转到 `reset-password.html`
+   - 在网页上设置新密码
+   - 成功后提示在 App 中使用新密码登录
+
+### App Deep Link 配置
+
+确保 App 已正确配置 Deep Link：
+
+**iOS (Info.plist)**:
+```xml
+<key>CFBundleURLTypes</key>
+<array>
+  <dict>
+    <key>CFBundleURLSchemes</key>
+    <array>
+      <string>steponsnow</string>
+    </array>
+  </dict>
+</array>
+```
+
+**Android (AndroidManifest.xml)**:
+```xml
+<intent-filter>
+  <action android:name="android.intent.action.VIEW" />
+  <category android:name="android.intent.category.DEFAULT" />
+  <category android:name="android.intent.category.BROWSABLE" />
+  <data android:scheme="steponsnow" />
+</intent-filter>
+```
 
 ## 🐛 问题排查
 

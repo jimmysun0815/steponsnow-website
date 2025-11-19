@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>验证中... - 逐风 Step On</title>
+    <link rel="icon" type="image/jpeg" href="assets/logo-1024x1024.jpg">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(135deg, #0A0E1A 0%, #1E293B 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+            background: rgba(30, 41, 59, 0.6);
+            backdrop-filter: blur(10px);
+            border-radius: 24px;
+            padding: 48px 32px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+        }
+
+        .logo {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 24px;
+            border-radius: 20px;
+            overflow: hidden;
+        }
+
+        .logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        h1 {
+            font-size: 28px;
+            margin-bottom: 16px;
+            font-weight: 700;
+        }
+
+        .message {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.7);
+            line-height: 1.6;
+            margin-bottom: 32px;
+        }
+
+        .spinner {
+            width: 48px;
+            height: 48px;
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 24px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .success-icon {
+            width: 64px;
+            height: 64px;
+            margin: 0 auto 24px;
+            background: rgba(34, 197, 94, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+        }
+
+        .error-icon {
+            width: 64px;
+            height: 64px;
+            margin: 0 auto 24px;
+            background: rgba(239, 68, 68, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 14px 32px;
+            background: #fff;
+            color: #0A0E1A;
+            text-decoration: none;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            margin-top: 8px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            margin-left: 12px;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .info-box {
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 12px;
+            padding: 16px;
+            margin-top: 24px;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">
+            <img src="assets/logo-1024x1024.jpg" alt="逐风 Logo">
+        </div>
+
+        <!-- 加载中状态 -->
+        <div id="loading-state">
+            <div class="spinner"></div>
+            <h1>验证中...</h1>
+            <p class="message">正在处理您的请求，请稍候</p>
+        </div>
+
+        <!-- 成功状态（移动端） -->
+        <div id="success-mobile" class="hidden">
+            <div class="success-icon">✓</div>
+            <h1>验证成功！</h1>
+            <p class="message">正在跳转到 App...</p>
+            <div class="info-box">
+                如果没有自动跳转，请手动打开逐风 App
+            </div>
+        </div>
+
+        <!-- 成功状态（桌面端） -->
+        <div id="success-desktop" class="hidden">
+            <div class="success-icon">✓</div>
+            <h1>验证成功！</h1>
+            <p class="message">您的邮箱已验证成功，现在可以在手机上登录逐风 App 了</p>
+            <div class="info-box">
+                📱 请在手机上下载并打开逐风 App 完成登录
+            </div>
+            <a href="/" class="btn">返回首页</a>
+        </div>
+
+        <!-- 错误状态 -->
+        <div id="error-state" class="hidden">
+            <div class="error-icon">✕</div>
+            <h1>验证失败</h1>
+            <p class="message" id="error-message">验证链接可能已过期或无效</p>
+            <div class="info-box">
+                请返回 App 重新发送验证邮件，或联系客服获取帮助
+            </div>
+            <a href="/" class="btn">返回首页</a>
+        </div>
+    </div>
+
+    <script type="module">
+        // 检测是否为移动设备
+        function isMobileDevice() {
+            return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        }
+
+        // 从 URL 获取 hash fragments
+        function getHashParams() {
+            const hash = window.location.hash.substring(1);
+            const params = new URLSearchParams(hash);
+            return {
+                access_token: params.get('access_token'),
+                refresh_token: params.get('refresh_token'),
+                type: params.get('type'),
+                error: params.get('error'),
+                error_description: params.get('error_description')
+            };
+        }
+
+        // App Deep Link
+        const APP_SCHEME = 'steponsnow://auth-callback';
+
+        async function handleAuthCallback() {
+            const params = getHashParams();
+            const isMobile = isMobileDevice();
+
+            console.log('Auth params:', params);
+            console.log('Is mobile:', isMobile);
+
+            // 检查是否有错误
+            if (params.error) {
+                showError(params.error_description || params.error);
+                return;
+            }
+
+            // 检查是否有 token
+            if (!params.access_token) {
+                showError('未找到验证信息');
+                return;
+            }
+
+            // 验证成功
+            if (isMobile) {
+                // 移动设备：尝试跳转到 App
+                showSuccess('mobile');
+                
+                // 构建 deep link
+                const deepLink = `${APP_SCHEME}#access_token=${params.access_token}&refresh_token=${params.refresh_token}&type=${params.type}`;
+                
+                // 尝试打开 App
+                setTimeout(() => {
+                    window.location.href = deepLink;
+                }, 1000);
+
+                // 如果 App 没有打开，3秒后显示提示
+                setTimeout(() => {
+                    const infoBox = document.querySelector('#success-mobile .info-box');
+                    if (infoBox) {
+                        infoBox.innerHTML = `
+                            未检测到 App？<br>
+                            <a href="/" style="color: #60a5fa; text-decoration: underline;">点击下载逐风 App</a>
+                        `;
+                    }
+                }, 3000);
+            } else {
+                // 桌面端：显示成功消息
+                showSuccess('desktop');
+            }
+        }
+
+        function showSuccess(platform) {
+            document.getElementById('loading-state').classList.add('hidden');
+            if (platform === 'mobile') {
+                document.getElementById('success-mobile').classList.remove('hidden');
+            } else {
+                document.getElementById('success-desktop').classList.remove('hidden');
+            }
+        }
+
+        function showError(message) {
+            document.getElementById('loading-state').classList.add('hidden');
+            document.getElementById('error-state').classList.remove('hidden');
+            document.getElementById('error-message').textContent = message;
+        }
+
+        // 页面加载时执行
+        window.addEventListener('DOMContentLoaded', () => {
+            // 延迟一点执行，让加载动画显示出来
+            setTimeout(handleAuthCallback, 500);
+        });
+    </script>
+</body>
+</html>
+
