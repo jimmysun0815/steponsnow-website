@@ -1,0 +1,15 @@
+# robots.txt for steponsnow.com - 北美华人滑雪社区
+# 逐风 Step On - 华人滑雪搭子、滑雪拼车拼房平台
+
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://steponsnow.com/sitemap.xml
+
+# Exclude assets if needed (optional)
+# Disallow: /assets/
+
+# Crawl-delay to be respectful
+Crawl-delay: 1
+

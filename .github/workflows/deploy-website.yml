@@ -1,0 +1,84 @@
+name: Deploy Website to S3
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'website/**'
+  workflow_dispatch:
+
+env:
+  AWS_REGION: us-west-2
+  S3_BUCKET: steponsnow.com
+
+jobs:
+  deploy:
+    name: Deploy to S3
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Sync files to S3
+        run: |
+          cd website
+          
+          echo "📦 同步文件到 S3..."
+          aws s3 sync . "s3://${{ env.S3_BUCKET }}/" \
+            --exclude ".git/*" \
+            --exclude "*.sh" \
+            --exclude "README.md" \
+            --exclude ".DS_Store" \
+            --exclude "node_modules/*" \
+            --cache-control "public, max-age=31536000" \
+            --delete
+          
+          echo "📝 设置 HTML 文件的 Content-Type..."
+          aws s3 cp index.html "s3://${{ env.S3_BUCKET }}/index.html" \
+            --content-type "text/html; charset=utf-8" \
+            --cache-control "public, max-age=3600"
+          
+          aws s3 cp privacy.html "s3://${{ env.S3_BUCKET }}/privacy.html" \
+            --content-type "text/html; charset=utf-8" \
+            --cache-control "public, max-age=3600"
+          
+          echo "🎨 设置 CSS 和 JS 的 Content-Type..."
+          aws s3 cp styles.css "s3://${{ env.S3_BUCKET }}/styles.css" \
+            --content-type "text/css; charset=utf-8" \
+            --cache-control "public, max-age=31536000"
+          
+          aws s3 cp script.js "s3://${{ env.S3_BUCKET }}/script.js" \
+            --content-type "application/javascript; charset=utf-8" \
+            --cache-control "public, max-age=31536000"
+
+      - name: Invalidate CloudFront cache (optional)
+        if: vars.CLOUDFRONT_DISTRIBUTION_ID != ''
+        run: |
+          echo "🔄 清除 CloudFront 缓存..."
+          aws cloudfront create-invalidation \
+            --distribution-id ${{ vars.CLOUDFRONT_DISTRIBUTION_ID }} \
+            --paths "/*"
+          echo "✅ CloudFront 缓存已清除"
+
+      - name: Deployment summary
+        run: |
+          echo "╔════════════════════════════════════════════════════════════╗"
+          echo "║                    ✅ 部署完成！                           ║"
+          echo "╚════════════════════════════════════════════════════════════╝"
+          echo ""
+          echo "🌐 网站地址: https://${{ env.S3_BUCKET }}"
+          echo "📦 S3 Bucket: s3://${{ env.S3_BUCKET }}"
+          echo "⏰ 部署时间: $(date)"
+          echo ""
+          echo "💡 验证部署："
+          echo "   curl -I https://${{ env.S3_BUCKET }}"
+
