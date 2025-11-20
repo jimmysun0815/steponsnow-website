@@ -239,6 +239,7 @@
             console.log('Hash params:', hashParams);
             console.log('Query params:', queryParams);
             console.log('Is mobile:', isMobile);
+            console.log('Full URL:', window.location.href);
 
             // 检查是否有错误
             if (hashParams.error || queryParams.error) {
@@ -252,20 +253,55 @@
                 return;
             }
 
-            // 情况2：Query parameter 格式（token_hash 或 code）
+            // 情况2：Query parameter 格式（token_hash）
             if (queryParams.token_hash) {
                 await handleTokenHash(queryParams.token_hash, queryParams.type, isMobile);
                 return;
             }
 
-            // 情况3：Magic link code 格式
+            // 情况3：PKCE code 格式（来自 Supabase 验证邮件）
             if (queryParams.code) {
-                await handleMagicLinkCode(queryParams.code, isMobile);
+                // Supabase 邮件验证使用 PKCE 流程
+                // 我们需要让 Supabase 自己处理这个重定向
+                console.log('检测到 PKCE code，使用 Supabase 内置处理...');
+                await handlePKCECallback(isMobile);
                 return;
             }
 
             // 没有找到任何验证信息
             showError('未找到验证信息，请重新点击邮件中的链接');
+        }
+
+        // 处理 PKCE 回调（Supabase 邮件验证）
+        async function handlePKCECallback(isMobile) {
+            try {
+                console.log('正在处理 PKCE 验证回调...');
+                
+                // 让 Supabase SDK 自动处理 URL 中的参数
+                const { data, error } = await supabase.auth.getSession();
+
+                if (error) {
+                    console.error('获取会话失败:', error);
+                    showError(error.message || '验证失败，链接可能已过期');
+                    return;
+                }
+
+                if (data.session) {
+                    console.log('验证成功！Session:', data.session);
+                    handleSuccessWithTokens({
+                        access_token: data.session.access_token,
+                        refresh_token: data.session.refresh_token,
+                        type: 'signup'
+                    }, isMobile);
+                } else {
+                    // 如果 getSession 没有返回 session，可能是因为 code 已过期
+                    console.warn('未获取到 session，链接可能已过期或已使用');
+                    showError('验证链接已过期或已使用，请重新发送验证邮件');
+                }
+            } catch (e) {
+                console.error('PKCE 验证过程出错:', e);
+                showError('验证过程出错：' + e.message);
+            }
         }
 
         // 处理 token_hash 验证
@@ -291,36 +327,6 @@
                         access_token: data.session.access_token,
                         refresh_token: data.session.refresh_token,
                         type: type || 'signup'
-                    }, isMobile);
-                } else {
-                    showError('验证失败，未获取到会话信息');
-                }
-            } catch (e) {
-                console.error('验证过程出错:', e);
-                showError('验证过程出错：' + e.message);
-            }
-        }
-
-        // 处理 magic link code
-        async function handleMagicLinkCode(code, isMobile) {
-            try {
-                console.log('正在使用 code 验证 (magic link)...');
-                
-                // 对于 magic link，我们需要使用 exchangeCodeForSession
-                const { data, error } = await supabase.auth.exchangeCodeForSession(code);
-
-                if (error) {
-                    console.error('验证失败:', error);
-                    showError(error.message || '验证失败，链接可能已过期');
-                    return;
-                }
-
-                if (data.session) {
-                    console.log('验证成功！');
-                    handleSuccessWithTokens({
-                        access_token: data.session.access_token,
-                        refresh_token: data.session.refresh_token,
-                        type: 'magiclink'
                     }, isMobile);
                 } else {
                     showError('验证失败，未获取到会话信息');
