@@ -310,37 +310,37 @@
                 console.log('📱 isMobile:', isMobile);
                 console.log('当前 URL:', window.location.href);
                 
-                // 尝试让 Supabase SDK 处理
-                const { data, error } = await supabase.auth.getSession();
-
-                console.log('📊 getSession 结果:', { 
-                    hasSession: !!data.session, 
-                    hasError: !!error 
-                });
-
-                if (data.session) {
-                    console.log('✅ 获取到 session，使用 tokens 跳转');
-                    handleSuccessWithTokens({
-                        access_token: data.session.access_token,
-                        refresh_token: data.session.refresh_token,
-                        type: 'signup'
-                    }, isMobile);
+                // 获取 URL 中的所有参数
+                const urlParams = new URLSearchParams(window.location.search);
+                const code = urlParams.get('code');
+                const error = urlParams.get('error');
+                const errorDescription = urlParams.get('error_description');
+                
+                // 检查是否有错误
+                if (error) {
+                    console.error('❌ Supabase 返回错误:', error, errorDescription);
+                    showError(errorDescription || error);
                     return;
                 }
-
-                // 没有获取到 session，但验证可能已在服务器端完成
-                console.log('📧 没有获取到 session，但验证可能已完成');
+                
+                // 检查是否有 code
+                if (!code) {
+                    console.error('❌ URL 中没有 code 参数');
+                    showError('验证链接格式不正确');
+                    return;
+                }
+                
+                console.log('✅ 检测到 code 参数:', code.substring(0, 20) + '...');
                 
                 if (isMobile) {
-                    console.log('📱 移动端：尝试打开 App（不带 tokens）');
-                    // 移动端：即使没有 tokens，也尝试打开 App
-                    // 用户可以在 App 中重新登录
+                    console.log('📱 移动端：直接传递 code 给 App');
                     showSuccess('mobile');
                     
-                    // 尝试打开 App（不带 tokens，让用户手动登录）
-                    const deepLink = `${APP_SCHEME}`;
+                    // 直接把完整的 query string 传递给 App
+                    // 让 App 的 Supabase SDK 处理 PKCE 流程
+                    const deepLink = `${APP_SCHEME}?${window.location.search.substring(1)}`;
                     
-                    console.log('🔗 Deep Link (无 tokens):', deepLink);
+                    console.log('🔗 Deep Link (with code):', deepLink.replace(code, code.substring(0, 20) + '...'));
                     console.log('⏱️ 1秒后将尝试打开 App...');
                     
                     setTimeout(() => {
@@ -359,8 +359,24 @@
                         }
                     }, 3000);
                 } else {
-                    console.log('💻 桌面端：显示成功消息');
-                    showVerificationComplete('desktop');
+                    console.log('💻 桌面端：尝试在网页端完成验证');
+                    
+                    // 桌面端：尝试让 Supabase SDK 处理
+                    const { data, error: sessionError } = await supabase.auth.getSession();
+                    
+                    if (sessionError) {
+                        console.error('❌ 获取 session 失败:', sessionError);
+                        showError('验证失败：' + sessionError.message);
+                        return;
+                    }
+                    
+                    if (data.session) {
+                        console.log('✅ 桌面端验证成功');
+                        showVerificationComplete('desktop');
+                    } else {
+                        console.log('⚠️ 桌面端没有获取到 session');
+                        showVerificationComplete('desktop');
+                    }
                 }
                 
             } catch (e) {
