@@ -74,8 +74,7 @@ jobs:
             --content-type "text/plain; charset=utf-8" \
             --cache-control "public, max-age=86400"
 
-      - name: Invalidate CloudFront cache (optional)
-        if: vars.CLOUDFRONT_DISTRIBUTION_ID != ''
+      - name: Invalidate CloudFront cache
         run: |
           echo "🔄 清除 CloudFront 缓存..."
           aws cloudfront create-invalidation \
