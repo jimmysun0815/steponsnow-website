@@ -284,22 +284,19 @@
         async function handlePKCECallback(isMobile) {
             try {
                 console.log('正在处理 PKCE 验证回调...');
+                console.log('📱 isMobile:', isMobile);
                 console.log('当前 URL:', window.location.href);
                 
-                // 提取完整的 URL 参数
-                const fullUrl = window.location.href;
-                
-                // 尝试让 Supabase SDK 处理（可能会失败，因为 code_verifier 不匹配）
+                // 尝试让 Supabase SDK 处理
                 const { data, error } = await supabase.auth.getSession();
 
-                if (error) {
-                    console.warn('getSession 失败（预期行为）:', error);
-                    // 这是预期的，因为网页端没有 code_verifier
-                    // 但验证链接实际上已经在 Supabase 服务器端完成了验证
-                }
+                console.log('📊 getSession 结果:', { 
+                    hasSession: !!data.session, 
+                    hasError: !!error 
+                });
 
                 if (data.session) {
-                    console.log('✅ 意外获取到 session！');
+                    console.log('✅ 获取到 session，使用 tokens 跳转');
                     handleSuccessWithTokens({
                         access_token: data.session.access_token,
                         refresh_token: data.session.refresh_token,
@@ -308,26 +305,52 @@
                     return;
                 }
 
-                // 没有获取到 session 是正常的
-                // 因为邮箱验证是在 Supabase 服务器端完成的
-                // 用户只需要在 App 中登录即可
-                console.log('📧 邮箱验证已在服务器端完成');
+                // 没有获取到 session，但验证可能已在服务器端完成
+                console.log('📧 没有获取到 session，但验证可能已完成');
                 
                 if (isMobile) {
-                    // 移动端：显示成功并引导用户打开 App
-                    showVerificationComplete('mobile');
+                    console.log('📱 移动端：尝试打开 App（不带 tokens）');
+                    // 移动端：即使没有 tokens，也尝试打开 App
+                    // 用户可以在 App 中重新登录
+                    showSuccess('mobile');
+                    
+                    // 尝试打开 App（不带 tokens，让用户手动登录）
+                    const deepLink = `${APP_SCHEME}`;
+                    
+                    console.log('🔗 Deep Link (无 tokens):', deepLink);
+                    console.log('⏱️ 1秒后将尝试打开 App...');
+                    
+                    setTimeout(() => {
+                        console.log('🚀 执行跳转');
+                        window.location.href = deepLink;
+                    }, 1000);
+
+                    // 3秒后显示提示
+                    setTimeout(() => {
+                        const infoBox = document.querySelector('#success-mobile .info-box');
+                        if (infoBox) {
+                            infoBox.innerHTML = `
+                                未自动打开 App？<br>
+                                <strong>验证已完成</strong>，请手动打开 App 并登录
+                            `;
+                        }
+                    }, 3000);
                 } else {
-                    // 桌面端：显示成功并引导用户在手机上登录
+                    console.log('💻 桌面端：显示成功消息');
                     showVerificationComplete('desktop');
                 }
                 
             } catch (e) {
                 console.error('PKCE 验证过程出错:', e);
-                // 即使出错，也可能是验证已完成
-                console.log('⚠️ 虽然出错，但验证可能已完成，请尝试登录 App');
                 
-                if (isMobileDevice()) {
-                    showVerificationComplete('mobile');
+                // 即使出错，移动端也尝试打开 App
+                if (isMobile) {
+                    console.log('⚠️ 出错但仍尝试打开 App');
+                    showSuccess('mobile');
+                    
+                    setTimeout(() => {
+                        window.location.href = `${APP_SCHEME}`;
+                    }, 1000);
                 } else {
                     showVerificationComplete('desktop');
                 }
@@ -389,24 +412,37 @@
 
         // 处理成功的验证
         function handleSuccessWithTokens(params, isMobile) {
+            console.log('🎉 handleSuccessWithTokens 被调用');
+            console.log('📱 isMobile:', isMobile);
+            console.log('🔑 Tokens:', {
+                access_token: params.access_token ? '存在' : '缺失',
+                refresh_token: params.refresh_token ? '存在' : '缺失',
+                type: params.type
+            });
+            
             if (isMobile) {
                 // 移动设备：尝试跳转到 App
+                console.log('📱 检测到移动设备，准备跳转到 App');
                 showSuccess('mobile');
                 
                 // 构建 deep link
                 const deepLink = `${APP_SCHEME}#access_token=${params.access_token}&refresh_token=${params.refresh_token}&type=${params.type}`;
                 
-                console.log('尝试打开 App:', deepLink);
+                console.log('🔗 Deep Link:', deepLink);
+                console.log('⏱️ 1秒后将尝试打开 App...');
                 
                 // 尝试打开 App
                 setTimeout(() => {
+                    console.log('🚀 执行跳转: window.location.href =', deepLink);
                     window.location.href = deepLink;
                 }, 1000);
 
                 // 如果 App 没有打开，3秒后显示提示
                 setTimeout(() => {
+                    console.log('⏱️ 3秒后检查是否需要显示下载提示');
                     const infoBox = document.querySelector('#success-mobile .info-box');
                     if (infoBox) {
+                        console.log('📝 更新提示信息');
                         infoBox.innerHTML = `
                             未检测到 App？<br>
                             <a href="/" style="color: #60a5fa; text-decoration: underline;">点击下载逐风 App</a>
@@ -415,6 +451,7 @@
                 }, 3000);
             } else {
                 // 桌面端：显示成功消息
+                console.log('💻 检测到桌面设备，显示成功消息');
                 showSuccess('desktop');
             }
         }
