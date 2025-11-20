@@ -78,7 +78,7 @@ jobs:
         run: |
           echo "🔄 清除 CloudFront 缓存..."
           aws cloudfront create-invalidation \
-            --distribution-id ${{ vars.CLOUDFRONT_DISTRIBUTION_ID }} \
+            --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} \
             --paths "/*"
           echo "✅ CloudFront 缓存已清除"
 
