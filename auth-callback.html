@@ -244,6 +244,7 @@
             const queryParams = getQueryParams();
             const isMobile = isMobileDevice();
 
+            console.log('🔍 开始处理 Auth Callback');
             console.log('Hash params:', hashParams);
             console.log('Query params:', queryParams);
             console.log('Is mobile:', isMobile);
@@ -251,32 +252,54 @@
 
             // 检查是否有错误
             if (hashParams.error || queryParams.error) {
-                showError(hashParams.error_description || queryParams.error_description || hashParams.error || queryParams.error);
+                const errorMsg = hashParams.error_description || queryParams.error_description || hashParams.error || queryParams.error;
+                console.error('❌ URL 中包含错误:', errorMsg);
+                showError(errorMsg);
+                return;
+            }
+
+            // 检查 URL 中是否有任何认证相关参数
+            const hasAuthParams = 
+                hashParams.access_token || 
+                queryParams.token_hash || 
+                queryParams.code ||
+                hashParams.refresh_token;
+
+            if (!hasAuthParams) {
+                console.warn('⚠️ URL 中没有找到任何认证参数');
+                console.log('这可能是因为：');
+                console.log('1. Supabase 返回了 403 错误');
+                console.log('2. Redirect URL 配置不正确');
+                console.log('3. 邮件链接已过期或已使用');
+                
+                // 显示友好的错误消息
+                showError('验证链接无效或已过期。请确保：\n1. 从最新的验证邮件点击\n2. 链接未被多次点击\n3. 如仍有问题，请重新发送验证邮件');
                 return;
             }
 
             // 情况1：Hash fragment 格式（标准的 access_token）
             if (hashParams.access_token) {
+                console.log('✅ 检测到 hash fragment 格式的 tokens');
                 handleSuccessWithTokens(hashParams, isMobile);
                 return;
             }
 
             // 情况2：Query parameter 格式（token_hash）
             if (queryParams.token_hash) {
+                console.log('✅ 检测到 token_hash 格式');
                 await handleTokenHash(queryParams.token_hash, queryParams.type, isMobile);
                 return;
             }
 
             // 情况3：PKCE code 格式（来自 Supabase 验证邮件）
             if (queryParams.code) {
-                // Supabase 邮件验证使用 PKCE 流程
-                // 我们需要让 Supabase 自己处理这个重定向
-                console.log('检测到 PKCE code，使用 Supabase 内置处理...');
+                console.log('✅ 检测到 PKCE code 格式');
                 await handlePKCECallback(isMobile);
                 return;
             }
 
             // 没有找到任何验证信息
+            console.error('❌ 未找到任何有效的验证信息');
             showError('未找到验证信息，请重新点击邮件中的链接');
         }
 
