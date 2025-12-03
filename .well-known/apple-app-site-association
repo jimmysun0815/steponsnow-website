@@ -1,0 +1,19 @@
+{
+    "applinks": {
+        "apps": [],
+        "details": [
+            {
+                "appID": "9W97UAQQ82.com.steponsnow.snowapp",
+                "paths": [
+                    "/share/carpool/*",
+                    "/share/accommodation/*"
+                ]
+            }
+        ]
+    },
+    "webcredentials": {
+        "apps": [
+            "9W97UAQQ82.com.steponsnow.snowapp"
+        ]
+    }
+}
