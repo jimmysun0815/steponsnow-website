@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>删除账号 - 逐风 Step On</title>
+    <link rel="icon" type="image/jpeg" href="assets/logo-1024x1024.jpg">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(135deg, #0A0E1A 0%, #1E293B 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 500px;
+            width: 100%;
+            background: rgba(30, 41, 59, 0.6);
+            backdrop-filter: blur(10px);
+            border-radius: 24px;
+            padding: 48px 32px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+        }
+
+        .logo {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 24px;
+            border-radius: 20px;
+            overflow: hidden;
+        }
+
+        .logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        h1 {
+            font-size: 28px;
+            margin-bottom: 8px;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        .subtitle {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.5);
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .warning-box {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 24px;
+        }
+
+        .warning-box h3 {
+            font-size: 16px;
+            color: #EF4444;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .warning-box ul {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.7);
+            line-height: 1.8;
+            padding-left: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+            text-align: left;
+        }
+
+        label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        input {
+            width: 100%;
+            padding: 14px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            color: #fff;
+            font-size: 15px;
+            transition: all 0.3s ease;
+        }
+
+        input:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(139, 92, 246, 0.5);
+        }
+
+        input::placeholder {
+            color: rgba(255, 255, 255, 0.3);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #8B5CF6, #6366F1);
+            color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(139, 92, 246, 0.4);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #EF4444, #DC2626);
+            color: white;
+        }
+
+        .btn-danger:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(239, 68, 68, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .message {
+            padding: 12px 16px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .message.error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #EF4444;
+        }
+
+        .message.success {
+            background: rgba(34, 197, 94, 0.1);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            color: #22C55E;
+        }
+
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .back-link {
+            display: block;
+            text-align: center;
+            margin-top: 24px;
+            color: rgba(255, 255, 255, 0.6);
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.3s;
+        }
+
+        .back-link:hover {
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .info-text {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.6);
+            line-height: 1.6;
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .confirmation-box {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 24px;
+            text-align: left;
+        }
+
+        .confirmation-box h3 {
+            font-size: 16px;
+            margin-bottom: 12px;
+            color: #fff;
+        }
+
+        .confirmation-box p {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.7);
+            line-height: 1.6;
+            margin-bottom: 8px;
+        }
+
+        .user-info {
+            background: rgba(139, 92, 246, 0.1);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 10px;
+            padding: 12px 16px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .user-info .nickname {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .user-info .email {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .success-container {
+            text-align: center;
+        }
+
+        .success-icon {
+            width: 64px;
+            height: 64px;
+            margin: 0 auto 24px;
+            background: rgba(34, 197, 94, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Logo -->
+        <div class="logo">
+            <img src="assets/logo-1024x1024.jpg" alt="逐风">
+        </div>
+
+        <!-- 登录界面 -->
+        <div id="login-section">
+            <h1>删除账号</h1>
+            <p class="subtitle">请先登录验证身份</p>
+
+            <div id="login-message" class="message hidden"></div>
+
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="email">邮箱</label>
+                    <input 
+                        type="email" 
+                        id="email" 
+                        placeholder="请输入您的邮箱"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="password">密码</label>
+                    <input 
+                        type="password" 
+                        id="password" 
+                        placeholder="请输入密码"
+                        required
+                    >
+                </div>
+
+                <button type="submit" class="btn btn-primary" id="login-btn">
+                    登录验证
+                </button>
+            </form>
+
+            <a href="/" class="back-link">← 返回首页</a>
+        </div>
+
+        <!-- 删除确认界面 -->
+        <div id="delete-section" class="hidden">
+            <h1>确认删除账号</h1>
+            <p class="subtitle">此操作不可撤销，请谨慎操作</p>
+
+            <!-- 用户信息 -->
+            <div class="user-info">
+                <div class="nickname" id="user-nickname">-</div>
+                <div class="email" id="user-email">-</div>
+            </div>
+
+            <!-- 警告信息 -->
+            <div class="warning-box">
+                <h3>⚠️ 删除账号将会：</h3>
+                <ul>
+                    <li>停用您的账号（无法登录）</li>
+                    <li>取消您发布的所有拼车和拼房信息</li>
+                    <li>其他用户将无法看到您的帖子</li>
+                    <li>此操作不可恢复</li>
+                </ul>
+            </div>
+
+            <div id="delete-message" class="message hidden"></div>
+
+            <!-- 确认输入 -->
+            <div class="confirmation-box">
+                <h3>最后确认</h3>
+                <p>请输入 <strong style="color: #EF4444;">delete</strong> 来确认删除操作：</p>
+                <div class="form-group" style="margin-top: 12px; margin-bottom: 0;">
+                    <input 
+                        type="text" 
+                        id="confirm-input" 
+                        placeholder="输入 delete 确认"
+                        autocomplete="off"
+                    >
+                </div>
+            </div>
+
+            <!-- 操作按钮 -->
+            <button class="btn btn-danger" id="delete-btn" disabled>
+                确认删除账号
+            </button>
+
+            <button class="btn btn-secondary" id="logout-btn">
+                取消，退出登录
+            </button>
+        </div>
+
+        <!-- 删除成功界面 -->
+        <div id="success-section" class="hidden">
+            <div class="success-container">
+                <div class="success-icon">✓</div>
+                <h1>账号已删除</h1>
+                <p class="subtitle">您的账号已成功删除</p>
+                
+                <div class="info-text" style="text-align: center; margin-top: 24px;">
+                    <p>您的账号已被停用，所有发布的帖子已被取消。</p>
+                    <p style="margin-top: 8px;">感谢您使用逐风，祝您滑雪愉快！</p>
+                </div>
+
+                <a href="/" class="btn btn-secondary" style="display: inline-block; margin-top: 24px; text-decoration: none;">
+                    返回首页
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <script>
+        // Supabase 配置
+        const SUPABASE_URL = 'https://avztlsrmiqigeivtmwha.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF2enRsc3JtaXFpZ2VpdnRtd2hhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE4NDg3ODksImV4cCI6MjA3NzQyNDc4OX0.yi6LQfbhRLcb1ZykoIUXKbWnadwwSsLVlOWjaPAbAlE';
+        const API_URL = 'https://api.steponsnow.com';
+
+        // 初始化 Supabase 客户端
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // DOM 元素
+        const loginSection = document.getElementById('login-section');
+        const deleteSection = document.getElementById('delete-section');
+        const successSection = document.getElementById('success-section');
+        const loginForm = document.getElementById('login-form');
+        const loginBtn = document.getElementById('login-btn');
+        const loginMessage = document.getElementById('login-message');
+        const deleteBtn = document.getElementById('delete-btn');
+        const logoutBtn = document.getElementById('logout-btn');
+        const deleteMessage = document.getElementById('delete-message');
+        const confirmInput = document.getElementById('confirm-input');
+        const userNickname = document.getElementById('user-nickname');
+        const userEmail = document.getElementById('user-email');
+
+        let currentUser = null;
+        let userProfile = null;
+
+        // 显示消息
+        function showMessage(element, message, isError = false) {
+            element.textContent = message;
+            element.className = `message ${isError ? 'error' : 'success'}`;
+            element.classList.remove('hidden');
+        }
+
+        function hideMessage(element) {
+            element.classList.add('hidden');
+        }
+
+        // 登录表单提交
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+
+            if (!email || !password) {
+                showMessage(loginMessage, '请填写邮箱和密码', true);
+                return;
+            }
+
+            // 禁用按钮
+            loginBtn.disabled = true;
+            loginBtn.innerHTML = '<span class="spinner"></span>登录中...';
+            hideMessage(loginMessage);
+
+            try {
+                // 使用 Supabase 登录
+                const { data, error } = await supabase.auth.signInWithPassword({
+                    email: email,
+                    password: password,
+                });
+
+                if (error) {
+                    throw error;
+                }
+
+                if (!data.user) {
+                    throw new Error('登录失败，请检查邮箱和密码');
+                }
+
+                currentUser = data.user;
+
+                // 获取用户资料
+                const { data: profile, error: profileError } = await supabase
+                    .from('user_profiles')
+                    .select('*')
+                    .eq('user_id', currentUser.id)
+                    .single();
+
+                if (profileError) {
+                    console.error('获取用户资料失败:', profileError);
+                }
+
+                userProfile = profile;
+
+                // 显示删除确认界面
+                loginSection.classList.add('hidden');
+                deleteSection.classList.remove('hidden');
+
+                // 显示用户信息
+                userNickname.textContent = profile?.nickname || '未设置昵称';
+                userEmail.textContent = currentUser.email;
+
+            } catch (error) {
+                console.error('登录失败:', error);
+                showMessage(loginMessage, error.message || '登录失败，请检查邮箱和密码', true);
+            } finally {
+                loginBtn.disabled = false;
+                loginBtn.textContent = '登录验证';
+            }
+        });
+
+        // 监听确认输入
+        confirmInput.addEventListener('input', (e) => {
+            const value = e.target.value.trim().toLowerCase();
+            deleteBtn.disabled = value !== 'delete';
+        });
+
+        // 删除账号按钮
+        deleteBtn.addEventListener('click', async () => {
+            if (confirmInput.value.trim().toLowerCase() !== 'delete') {
+                showMessage(deleteMessage, '请输入 delete 来确认删除', true);
+                return;
+            }
+
+            deleteBtn.disabled = true;
+            deleteBtn.innerHTML = '<span class="spinner"></span>删除中...';
+            hideMessage(deleteMessage);
+
+            try {
+                // 获取当前 session token
+                const { data: { session } } = await supabase.auth.getSession();
+                
+                if (!session) {
+                    throw new Error('未登录或 session 已过期');
+                }
+
+                // 调用后端 API 删除账号
+                const response = await fetch(`${API_URL}/api/users/delete-account`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${session.access_token}`,
+                    },
+                });
+
+                const result = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(result.message || result.error || '删除失败');
+                }
+
+                // 退出登录
+                await supabase.auth.signOut();
+
+                // 显示成功界面
+                deleteSection.classList.add('hidden');
+                successSection.classList.remove('hidden');
+
+            } catch (error) {
+                console.error('删除账号失败:', error);
+                showMessage(deleteMessage, error.message || '删除失败，请重试', true);
+                deleteBtn.disabled = false;
+                deleteBtn.textContent = '确认删除账号';
+            }
+        });
+
+        // 退出登录按钮
+        logoutBtn.addEventListener('click', async () => {
+            await supabase.auth.signOut();
+            window.location.href = '/';
+        });
+
+        // 页面加载时检查是否已登录
+        window.addEventListener('load', async () => {
+            const { data: { session } } = await supabase.auth.getSession();
+            
+            if (session) {
+                // 已登录，直接显示删除界面
+                currentUser = session.user;
+
+                // 获取用户资料
+                const { data: profile } = await supabase
+                    .from('user_profiles')
+                    .select('*')
+                    .eq('user_id', currentUser.id)
+                    .single();
+
+                userProfile = profile;
+
+                loginSection.classList.add('hidden');
+                deleteSection.classList.remove('hidden');
+
+                userNickname.textContent = profile?.nickname || '未设置昵称';
+                userEmail.textContent = currentUser.email;
+            }
+        });
+    </script>
+</body>
+</html>
+
