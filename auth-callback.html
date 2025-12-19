@@ -239,6 +239,15 @@
         // App Deep Link
         const APP_SCHEME = 'steponsnow://auth-callback';
 
+        // 超时保护：10秒后如果还在验证中，显示错误
+        let timeoutId = setTimeout(() => {
+            const loadingState = document.getElementById('loading-state');
+            if (loadingState && !loadingState.classList.contains('hidden')) {
+                console.error('❌ 验证超时');
+                showError('验证超时。请检查：\n1. 网络连接是否正常\n2. 验证链接是否有效\n3. 尝试重新点击邮件中的链接');
+            }
+        }, 10000);
+
         async function handleAuthCallback() {
             const hashParams = getHashParams();
             const queryParams = getQueryParams();
@@ -249,6 +258,11 @@
             console.log('Query params:', queryParams);
             console.log('Is mobile:', isMobile);
             console.log('Full URL:', window.location.href);
+            
+            // 清除超时定时器
+            if (timeoutId) {
+                clearTimeout(timeoutId);
+            }
 
             // 检查是否有错误
             if (hashParams.error || queryParams.error) {
@@ -398,6 +412,11 @@
 
         // 显示验证完成消息
         function showVerificationComplete(platform) {
+            // 清除超时定时器
+            if (timeoutId) {
+                clearTimeout(timeoutId);
+            }
+            
             document.getElementById('loading-state').classList.add('hidden');
             if (platform === 'mobile') {
                 document.getElementById('success-mobile').classList.remove('hidden');
@@ -496,6 +515,11 @@
         }
 
         function showSuccess(platform) {
+            // 清除超时定时器
+            if (timeoutId) {
+                clearTimeout(timeoutId);
+            }
+            
             document.getElementById('loading-state').classList.add('hidden');
             if (platform === 'mobile') {
                 document.getElementById('success-mobile').classList.remove('hidden');
@@ -505,6 +529,11 @@
         }
 
         function showError(message) {
+            // 清除超时定时器
+            if (timeoutId) {
+                clearTimeout(timeoutId);
+            }
+            
             document.getElementById('loading-state').classList.add('hidden');
             document.getElementById('error-state').classList.remove('hidden');
             document.getElementById('error-message').textContent = message;
@@ -512,8 +541,31 @@
 
         // 页面加载时执行
         window.addEventListener('DOMContentLoaded', () => {
+            console.log('📄 页面加载完成');
+            console.log('🔗 当前 URL:', window.location.href);
+            console.log('🔗 Hash:', window.location.hash);
+            console.log('🔗 Search:', window.location.search);
+            
             // 延迟一点执行，让加载动画显示出来
-            setTimeout(handleAuthCallback, 500);
+            setTimeout(() => {
+                try {
+                    handleAuthCallback();
+                } catch (error) {
+                    console.error('❌ handleAuthCallback 执行出错:', error);
+                    showError('验证过程出错：' + error.message);
+                }
+            }, 500);
+        });
+        
+        // 捕获未处理的错误
+        window.addEventListener('error', (event) => {
+            console.error('❌ 全局错误:', event.error);
+            showError('页面加载出错：' + event.error?.message);
+        });
+        
+        window.addEventListener('unhandledrejection', (event) => {
+            console.error('❌ Promise 错误:', event.reason);
+            showError('异步处理出错：' + event.reason?.message);
         });
     </script>
 </body>
