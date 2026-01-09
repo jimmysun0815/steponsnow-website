@@ -68,9 +68,9 @@ window.addEventListener('scroll', () => {
     }
 }, { passive: true });
 
-// Update download links (placeholder - update with actual app store links)
+// Update download links
 const updateStoreLinks = () => {
-    const appStoreLink = 'https://apps.apple.com/app/your-app-id'; // TODO: Update with actual link
+    const appStoreLink = 'https://apps.apple.com/us/app/%E9%80%90%E9%A3%8E/id6754859759';
     const playStoreLink = 'https://play.google.com/store/apps/details?id=your.package.name'; // TODO: Update with actual link
     
     // You can update these dynamically if needed

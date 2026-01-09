@@ -115,7 +115,7 @@ cp marketing/ios/订阅.jpg website/assets/
 
 ```html
 <!-- App Store 链接 -->
-<a href="https://apps.apple.com/app/your-app-id" ...>
+<a href="https://apps.apple.com/us/app/%E9%80%90%E9%A3%8E/id6754859759" ...>
 
 <!-- Google Play 链接 -->
 <a href="https://play.google.com/store/apps/details?id=your.package.name" ...>
