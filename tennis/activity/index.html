@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>约球活动 - 逐风</title>
+    <meta name="description" content="查看约球活动详情 - 逐风 App">
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="约球活动 - 逐风">
+    <meta property="og:description" content="一起来打球！查看活动详情并加入。">
+    <meta property="og:image" content="https://steponsnow.com/assets/logo-1024x1024.jpg">
+    <link rel="icon" type="image/jpeg" href="/assets/logo-1024x1024.jpg">
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif;background:#f9faf8;min-height:100vh;color:#1a1a1a}
+        .page{max-width:480px;margin:0 auto;padding:40px 24px 60px;text-align:center}
+        .brand{display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:32px}
+        .brand img{width:32px;height:32px;border-radius:8px}
+        .brand span{font-size:14px;font-weight:700;color:#8e8e93}
+        .card{background:#fff;border-radius:20px;padding:0;box-shadow:0 4px 24px rgba(0,0,0,.06);margin-bottom:28px;overflow:hidden;text-align:left}
+        .card-top{padding:24px 24px 0}
+        .card-badge{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:10px;font-size:11px;font-weight:600;margin-bottom:14px}
+        .badge-open{background:#00A65115;color:#00A651}
+        .badge-full{background:#FF950015;color:#FF9500}
+        .badge-cancelled{background:#FF3B3015;color:#FF3B30}
+        .badge-completed{background:#8e8e9315;color:#8e8e93}
+        .card-title{font-size:20px;font-weight:800;color:#1a1a1a;margin-bottom:16px;line-height:1.4}
+        .info-section{padding:16px 24px;background:#f9faf8;margin:0 16px 16px;border-radius:14px}
+        .info-row{display:flex;align-items:flex-start;gap:10px;padding:8px 0;font-size:14px;color:#4a4a4a}
+        .info-row+.info-row{border-top:1px solid #f0f0f0}
+        .info-icon{flex-shrink:0;font-size:16px;margin-top:1px}
+        .info-label{flex:1}
+        .slots-bar{display:flex;gap:4px;align-items:center;padding:12px 24px 20px}
+        .slot-dot{width:20px;height:20px;border-radius:50%;border:2px solid;display:flex;align-items:center;justify-content:center;font-size:10px}
+        .slot-filled{border-color:#00A651;background:#00A65115;color:#00A651}
+        .slot-empty{border-color:#e0e0e0;background:#fff}
+        .slot-text{margin-left:8px;font-size:13px;color:#8e8e93}
+        .notes-section{padding:0 24px 20px;font-size:13px;color:#4a4a4a;line-height:1.5}
+        .notes-label{font-size:12px;font-weight:600;color:#8e8e93;margin-bottom:4px}
+        .loading{display:flex;align-items:center;justify-content:center;gap:10px;padding:40px 0;color:#8e8e93}
+        .spinner{width:20px;height:20px;border:2px solid #00A65130;border-top-color:#00A651;border-radius:50%;animation:spin .8s linear infinite}
+        @keyframes spin{to{transform:rotate(360deg)}}
+        .error-msg{color:#ff3b30;font-size:14px;padding:20px 24px}
+        .no-data{color:#8e8e93;font-size:14px;padding:0 24px 20px}
+        .cta{display:block;width:100%;padding:16px;background:#00A651;color:#fff;border:none;border-radius:14px;font-size:16px;font-weight:700;text-decoration:none;transition:all .2s;cursor:pointer;margin-bottom:12px}
+        .cta:hover{background:#008c45;transform:translateY(-1px);box-shadow:0 6px 20px rgba(0,166,81,.3)}
+        .dl-row{display:flex;gap:10px}
+        .dl-btn{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:12px;border-radius:12px;text-decoration:none;font-size:13px;font-weight:600;transition:all .2s}
+        .dl-btn.ios{background:#1a1a1a;color:#fff}
+        .dl-btn.android{background:#fff;color:#34A853;border:2px solid #34A853}
+        .dl-btn svg{width:18px;height:18px;fill:currentColor}
+        .footer{color:#8e8e93;font-size:11px;margin-top:40px}
+        .footer a{color:#00A651;text-decoration:none}
+        .hidden{display:none}
+    </style>
+</head>
+<body>
+    <div class="page">
+        <div class="brand">
+            <img src="/assets/logo-1024x1024.jpg" alt="" onerror="this.style.display='none'">
+            <span>逐风 · 网球</span>
+        </div>
+
+        <div class="card" id="card">
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <span>加载活动中...</span>
+            </div>
+            <div id="activity-content" class="hidden"></div>
+            <div id="error" class="hidden"></div>
+        </div>
+
+        <button class="cta" onclick="openApp()">在 App 中查看 & 报名</button>
+
+        <div class="dl-row">
+            <a href="https://apps.apple.com/us/app/%E9%80%90%E9%A3%8E/id6754859759" class="dl-btn ios">
+                <svg viewBox="0 0 24 24"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+                App Store
+            </a>
+            <a href="https://play.google.com/store/apps/details?id=com.snowresort.snow_resort_app" class="dl-btn android">
+                <svg viewBox="0 0 24 24"><path d="M3.18 23.04L14.37 12 3.18.96C2.7 1.18 2.37 1.69 2.37 2.28v19.44c0 .59.33 1.1.81 1.32zm15.08-13.2L5.94.98l10.26 5.93 2.06 2.93zm.58 4.32L5.94 23.02l12.9-8.86 2.06-2.93zM20.08 11l2.02 1.18c.44.25.44.87 0 1.12L20.08 14.48l-2.37-1.74 2.37-1.74z"/></svg>
+                Google Play
+            </a>
+        </div>
+
+        <div class="footer">
+            © 2026 逐风 StepOnSnow · <a href="/">首页</a> · <a href="/download">下载 App</a>
+        </div>
+    </div>
+
+    <script>
+        const SUPABASE_ENVS = {
+            prod: {
+                url: 'https://jbucqclsoqcjvnefiyyw.supabase.co',
+                anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpidWNxY2xzb3FjanZuZWZpeXl3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU0OTI5NDMsImV4cCI6MjA4MTA2ODk0M30.wdlr90Kb42b6wb5ERnT7dZKn8ciKJZ0SzJXMWGjs9F4'
+            },
+            dev: {
+                url: 'https://avztlsrmiqigeivtmwha.supabase.co',
+                anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF2enRsc3JtaXFpZ2VpdnRtd2hhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE4NDg3ODksImV4cCI6MjA3NzQyNDc4OX0.yi6LQfbhRLcb1ZykoIUXKbWnadwwSsLVlOWjaPAbAlE'
+            }
+        };
+
+        const pathParts = window.location.pathname.split('/').filter(p => p);
+        const params = new URLSearchParams(window.location.search);
+        const activityId = params.get('id') || pathParts[2];
+        const env = params.get('env') === 'dev' ? 'dev' : 'prod';
+        const SUPABASE_URL = SUPABASE_ENVS[env].url;
+        const SUPABASE_ANON_KEY = SUPABASE_ENVS[env].anonKey;
+
+        const WEEKDAYS = ['日','一','二','三','四','五','六'];
+
+        function skillLabel(s) {
+            switch(s) {
+                case 'beginner': return '初级';
+                case 'intermediate': return '中级';
+                case 'advanced': return '高级';
+                case 'any': return '不限水平';
+                case null:
+                case undefined:
+                case '': return '不限水平';
+                default: return '水平 ' + s;
+            }
+        }
+        function gameLabel(g) {
+            switch(g) {
+                case 'singles': return '单打';
+                case 'doubles': return '双打';
+                case 'hitting': return '对打';
+                case 'any': return '不限';
+                default: return g || '不限';
+            }
+        }
+        function durationLabel(m) {
+            if (m < 60) return m + ' 分钟';
+            const h = Math.floor(m / 60);
+            const r = m % 60;
+            return r === 0 ? h + ' 小时' : h + ' 小时 ' + r + ' 分钟';
+        }
+        function statusInfo(status, slotsAvailable) {
+            if (status === 'cancelled') return { cls: 'badge-cancelled', text: '已取消' };
+            if (status === 'completed') return { cls: 'badge-completed', text: '已结束' };
+            if (slotsAvailable <= 0) return { cls: 'badge-full', text: '已满' };
+            return { cls: 'badge-open', text: '招募中' };
+        }
+
+        async function loadActivity() {
+            if (!activityId) {
+                showError('无效的链接');
+                return;
+            }
+
+            try {
+                const res = await fetch(
+                    `${SUPABASE_URL}/rest/v1/tennis_activities?id=eq.${activityId}&select=*,tennis_courts(name)`,
+                    { headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${SUPABASE_ANON_KEY}` } }
+                );
+                const data = await res.json();
+
+                if (!data.length) {
+                    showError('未找到该活动');
+                    return;
+                }
+
+                const a = data[0];
+                renderActivity(a);
+            } catch (e) {
+                showError('加载失败，请稍后重试');
+            }
+        }
+
+        function renderActivity(a) {
+            const content = document.getElementById('activity-content');
+            const court = a.tennis_courts;
+            const courtName = court ? court.name : '';
+            const st = statusInfo(a.status, a.slots_available);
+            const playDate = new Date(a.play_date + 'T00:00:00');
+            const wd = WEEKDAYS[playDate.getDay()];
+            const dateStr = `${playDate.getFullYear()}.${String(playDate.getMonth()+1).padStart(2,'0')}.${String(playDate.getDate()).padStart(2,'0')} 周${wd}`;
+            const timeStr = a.start_time ? a.start_time.substring(0, 5) : '';
+            const filled = (a.slots_total || 0) - (a.slots_available || 0);
+
+            document.title = `${a.title} - 逐风约球`;
+            const ogTitle = document.querySelector('meta[property="og:title"]');
+            if (ogTitle) ogTitle.content = `${a.title} - 逐风约球`;
+            const ogDesc = document.querySelector('meta[property="og:description"]');
+            if (ogDesc) ogDesc.content = `${dateStr} ${timeStr} · ${courtName || '网球场'} · ${gameLabel(a.game_type)} · 来一起打球！`;
+
+            let html = '<div class="card-top">';
+            html += `<div class="card-badge ${st.cls}">${st.text}</div>`;
+            html += `<div class="card-title">${a.title}</div>`;
+            html += '</div>';
+
+            html += '<div class="info-section">';
+            html += `<div class="info-row"><span class="info-icon">📅</span><span class="info-label">${dateStr}</span></div>`;
+            html += `<div class="info-row"><span class="info-icon">🕐</span><span class="info-label">${timeStr} · ${durationLabel(a.duration_minutes || 60)}</span></div>`;
+            if (courtName) {
+                html += `<div class="info-row"><span class="info-icon">📍</span><span class="info-label">${courtName}</span></div>`;
+            }
+            html += `<div class="info-row"><span class="info-icon">🎾</span><span class="info-label">${gameLabel(a.game_type)} · ${skillLabel(a.skill_level)}</span></div>`;
+            html += '</div>';
+
+            html += '<div class="slots-bar">';
+            for (let i = 0; i < (a.slots_total || 0); i++) {
+                if (i < filled) {
+                    html += '<div class="slot-dot slot-filled">✓</div>';
+                } else {
+                    html += '<div class="slot-dot slot-empty"></div>';
+                }
+            }
+            html += `<span class="slot-text">${filled}/${a.slots_total || 0} 人已加入`;
+            if (a.slots_available > 0) html += ` · 还差${a.slots_available}人`;
+            html += '</span></div>';
+
+            if (a.notes) {
+                html += `<div class="notes-section"><div class="notes-label">备注</div>${a.notes}</div>`;
+            }
+
+            content.innerHTML = html;
+            document.getElementById('loading').classList.add('hidden');
+            content.classList.remove('hidden');
+        }
+
+        function showError(msg) {
+            document.getElementById('loading').classList.add('hidden');
+            const el = document.getElementById('error');
+            el.innerHTML = `<div class="error-msg">${msg}</div><div class="no-data">下载逐风 App 查看更多</div>`;
+            el.classList.remove('hidden');
+        }
+
+        function openApp() {
+            const scheme = activityId ? `steponsnow://tennis/activity/${activityId}` : 'steponsnow://';
+            window.location.href = scheme;
+            setTimeout(() => {
+                const ua = navigator.userAgent || '';
+                if (/iPad|iPhone|iPod/.test(ua)) {
+                    window.location.href = 'https://apps.apple.com/us/app/%E9%80%90%E9%A3%8E/id6754859759';
+                } else if (/android/i.test(ua)) {
+                    window.location.href = 'https://play.google.com/store/apps/details?id=com.snowresort.snow_resort_app';
+                }
+            }, 2000);
+        }
+
+        loadActivity();
+    </script>
+    <script src="/wx-guide.js"></script>
+</body>
+</html>

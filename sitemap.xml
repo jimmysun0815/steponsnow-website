@@ -7,11 +7,19 @@
     <!-- 主页 - 北美华人滑雪社区 -->
     <url>
         <loc>https://steponsnow.com/</loc>
-        <lastmod>2025-11-19</lastmod>
+        <lastmod>2026-05-07</lastmod>
         <changefreq>weekly</changefreq>
         <priority>1.0</priority>
     </url>
-    
+
+    <!-- 网球主页 - 北美华人网球社区 -->
+    <url>
+        <loc>https://steponsnow.com/tennis/</loc>
+        <lastmod>2026-05-07</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>1.0</priority>
+    </url>
+
     <!-- 隐私政策 -->
     <url>
         <loc>https://steponsnow.com/privacy.html</loc>

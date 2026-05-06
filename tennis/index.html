@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="逐风网球 - 专为北美华人网球爱好者打造的一站式网球平台。查看周边球场、发起约球、找球友、记录每次挥拍、生成专属网球周报，一个 App 玩转北美华人网球社区。">
+    <meta name="keywords" content="北美网球,北美华人网球,华人网球,网球约球,找球友,网球搭子,网球球场,网球记录,网球app,北美约球,洛杉矶网球,湾区网球,纽约网球,tennis app,find tennis partner">
+    <meta name="author" content="Works On My Machine LLC">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://steponsnow.com/tennis/">
+    <meta property="og:title" content="逐风网球 - 北美华人网球社区 | 找球友 约球 查球场">
+    <meta property="og:description" content="专为北美华人网球爱好者打造。查周边球场、发起约球、找华人球友、记录打球数据，一站式网球平台。">
+    <meta property="og:image" content="https://steponsnow.com/assets/logo-1024x1024.jpg">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://steponsnow.com/tennis/">
+    <meta property="twitter:title" content="逐风网球 - 北美华人网球社区">
+    <meta property="twitter:description" content="找华人网球搭子、查周边球场、记录打球数据。">
+    <meta property="twitter:image" content="https://steponsnow.com/assets/logo-1024x1024.jpg">
+
+    <title>逐风网球 - 北美华人网球社区 | 约球 找球友 球场地图</title>
+    <link rel="stylesheet" href="tennis.css">
+    <link rel="icon" type="image/jpeg" href="../assets/logo-1024x1024.jpg">
+    <link rel="canonical" href="https://steponsnow.com/tennis/">
+
+    <!-- Structured Data for SEO -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "MobileApplication",
+      "name": "逐风网球",
+      "alternateName": "Step On Tennis",
+      "description": "专为北美华人网球爱好者打造的一站式网球平台。查看周边球场、发起约球、找球友、记录每次挥拍、生成网球周报。",
+      "applicationCategory": "SportsApplication",
+      "operatingSystem": ["iOS", "Android"],
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.8",
+        "ratingCount": "150"
+      },
+      "author": {
+        "@type": "Organization",
+        "name": "Works On My Machine LLC"
+      },
+      "keywords": "北美网球,北美华人网球,华人网球搭子,网球约球,找球友,网球球场,网球记录"
+    }
+    </script>
+</head>
+<body>
+    <!-- Hero Section -->
+    <header class="hero">
+        <nav class="nav">
+            <div class="nav-content">
+                <div class="nav-left">
+                    <a href="../index.html" class="logo">
+                        <img src="../assets/logo-1024x1024.jpg" alt="逐风 Logo">
+                        <span>逐风 Step On</span>
+                    </a>
+                    <div class="mode-toggle" role="tablist" aria-label="模式切换">
+                        <a href="../index.html" class="mode-toggle-item" role="tab">❄️ 滑雪</a>
+                        <a href="index.html" class="mode-toggle-item active" role="tab" aria-selected="true">🎾 网球</a>
+                    </div>
+                </div>
+                <div class="nav-links">
+                    <a href="#features">功能</a>
+                    <a href="#screenshots">截图</a>
+                    <a href="#download">下载</a>
+                </div>
+            </div>
+        </nav>
+
+        <div class="hero-content">
+            <div class="hero-text">
+                <span class="hero-eyebrow">🎾 全新上线 · 网球模式</span>
+                <h1 class="hero-title">
+                    北美华人<span class="accent">网球社区</span><br>
+                    找球友 · 查球场 · 一键约球
+                </h1>
+                <p class="hero-subtitle">
+                    覆盖全美的网球场地图，专属的华人球友圈<br>
+                    发起约球、记录每次挥拍、生成你的网球周报
+                </p>
+                <div class="hero-buttons">
+                    <a href="#download" class="btn btn-primary">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                            <path d="M13 8V2H7v6H2l8 8 8-8h-5zM0 18h20v2H0v-2z"/>
+                        </svg>
+                        立即下载
+                    </a>
+                    <a href="#features" class="btn btn-secondary">了解更多</a>
+                </div>
+            </div>
+            <div class="hero-image">
+                <div class="phone-mockup">
+                    <img src="../assets/tennis-screens/courts.png" alt="逐风网球 - 周边球场地图" class="app-screenshot">
+                </div>
+            </div>
+        </div>
+
+        <div class="scroll-indicator">
+            <span>向下滚动探索</span>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+        </div>
+    </header>
+
+    <!-- Features Section -->
+    <section id="features" class="features">
+        <div class="container">
+            <div class="section-header">
+                <h2>核心功能</h2>
+                <p>一站式满足你的网球需求</p>
+            </div>
+
+            <div class="features-grid">
+                <!-- Feature 1: 周边球场 -->
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <img src="../assets/tennis-screens/courts.png" alt="查看周边球场">
+                    </div>
+                    <div class="feature-content">
+                        <h3>📍 探索周边球场</h3>
+                        <p class="feature-subtitle">通过球场地图，快速找到附近的网球场</p>
+                        <ul class="feature-list">
+                            <li>覆盖北美主要城市的网球场数据</li>
+                            <li>区分公共球场、学校球场、私人俱乐部</li>
+                            <li>地图聚合显示，随手就能定位附近的场地</li>
+                            <li>支持搜索、筛选与查看场地详情</li>
+                        </ul>
+                        <p class="feature-highlight">
+                            出差、旅行、搬到新城市，一打开就能找到附近的网球场
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Feature 2: 寻找球友 -->
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <img src="../assets/tennis-screens/match.png" alt="发起约球">
+                    </div>
+                    <div class="feature-content">
+                        <h3>🤝 发起约球，认识球友</h3>
+                        <p class="feature-subtitle">设置时间、人数、水平，认识更多周边球友</p>
+                        <ul class="feature-list">
+                            <li>选定球场、日期、时长一键发起约球</li>
+                            <li>支持单打、双打、对打多种类型</li>
+                            <li>按水平筛选：初级 / 中级 / 高级 / 不限</li>
+                            <li>随时查看报名情况，再也不用在群里反复 @</li>
+                        </ul>
+                        <p class="feature-highlight">
+                            告别"群里没人理"的尴尬，让每一次约球都更高效
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Feature 3: 打球记录 -->
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <img src="../assets/tennis-screens/records.png" alt="打球记录">
+                    </div>
+                    <div class="feature-content">
+                        <h3>🏆 记录每一次挥拍</h3>
+                        <p class="feature-subtitle">记录每一次对拉、比赛，留下你的高光时刻</p>
+                        <ul class="feature-list">
+                            <li>支持比赛与练习两种类型</li>
+                            <li>自动统计本月场次、累计时长、胜率</li>
+                            <li>关联球场，自动整理成你的打球时间线</li>
+                            <li>持续积累，看到自己的成长轨迹</li>
+                        </ul>
+                        <p class="feature-highlight">
+                            把每一次挥拍变成可以回顾的数据
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Feature 4: 周报 -->
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <img src="../assets/tennis-screens/weekly.png" alt="网球周报">
+                    </div>
+                    <div class="feature-content">
+                        <h3>📊 专属网球周报</h3>
+                        <p class="feature-subtitle">一键生成你专属的网球周报，记录你的进步</p>
+                        <ul class="feature-list">
+                            <li>自动汇总本周场次、运动时长、消耗卡路里</li>
+                            <li>展示本月、累计场次与胜率</li>
+                            <li>精美的分享卡片，一键发到朋友圈</li>
+                            <li>用数据见证自己一周一周变强</li>
+                        </ul>
+                        <p class="feature-highlight">
+                            坚持运动，配上专属的仪式感
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Feature 5: 名片 -->
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <img src="../assets/tennis-screens/card.png" alt="网球名片">
+                    </div>
+                    <div class="feature-content">
+                        <h3>💌 一键分享网球名片</h3>
+                        <p class="feature-subtitle">让更多人在不同的社交媒体上看到你</p>
+                        <ul class="feature-list">
+                            <li>展示昵称、城市、NTRP 等级、打法风格</li>
+                            <li>自定义个性签名，打造独一无二的网球名片</li>
+                            <li>分享到小红书、朋友圈、微信，扫码即可加你为球友</li>
+                            <li>不再用截图凑信息，名片即门面</li>
+                        </ul>
+                        <p class="feature-highlight">
+                            把你的网球身份带到任何社交平台
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Highlights Section -->
+    <section class="highlights">
+        <div class="container">
+            <div class="section-header">
+                <h2>为什么北美华人网球爱好者选择逐风？</h2>
+                <p>专为华人网球社区打造的贴心功能</p>
+            </div>
+            <div class="highlights-grid">
+                <div class="highlight-item">
+                    <div class="highlight-icon">💯</div>
+                    <h3>完全免费</h3>
+                    <p>无会员、无广告<br>北美华人网球社区</p>
+                </div>
+                <div class="highlight-item">
+                    <div class="highlight-icon">🌎</div>
+                    <h3>覆盖全美</h3>
+                    <p>主要城市的球场数据<br>覆盖洛杉矶、湾区、纽约等</p>
+                </div>
+                <div class="highlight-item">
+                    <div class="highlight-icon">🤝</div>
+                    <h3>华人球友圈</h3>
+                    <p>用中文交流更顺畅<br>找到合拍的打球伙伴</p>
+                </div>
+                <div class="highlight-item">
+                    <div class="highlight-icon">🚀</div>
+                    <h3>持续进化</h3>
+                    <p>不断优化体验<br>更多功能开发中</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Screenshots Section -->
+    <section id="screenshots" class="screenshots">
+        <div class="container">
+            <div class="section-header">
+                <h2>应用截图</h2>
+                <p>一览逐风网球的简洁设计</p>
+            </div>
+            <div class="screenshots-grid">
+                <div class="screenshot-item">
+                    <img src="../assets/tennis-screens/courts.png" alt="周边球场地图">
+                    <p>周边球场地图</p>
+                </div>
+                <div class="screenshot-item">
+                    <img src="../assets/tennis-screens/match.png" alt="发起约球">
+                    <p>发起约球</p>
+                </div>
+                <div class="screenshot-item">
+                    <img src="../assets/tennis-screens/records.png" alt="打球记录">
+                    <p>打球记录</p>
+                </div>
+                <div class="screenshot-item">
+                    <img src="../assets/tennis-screens/weekly.png" alt="网球周报">
+                    <p>网球周报</p>
+                </div>
+                <div class="screenshot-item">
+                    <img src="../assets/tennis-screens/card.png" alt="网球名片">
+                    <p>网球名片</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Download Section -->
+    <section id="download" class="download">
+        <div class="container">
+            <div class="download-content">
+                <h2>加入北美华人网球社区</h2>
+                <p class="download-subtitle">找球友、查球场、约球，让每一次挥拍都更有意义</p>
+                <div class="download-buttons">
+                    <a href="https://apps.apple.com/us/app/%E9%80%90%E9%A3%8E/id6754859759" class="store-button" target="_blank" rel="noopener">
+                        <svg width="32" height="32" viewBox="0 0 32 32" fill="currentColor">
+                            <path d="M24.769 13.547c-.072-1.832.996-3.417 2.461-4.364-1.323-1.86-3.362-2.933-5.417-3.027-2.262-.234-4.573 1.359-5.496 1.359-.977 0-2.773-1.328-4.531-1.291-2.392.037-4.583 1.422-5.786 3.604-2.542 4.422-.649 10.938 1.776 14.51 1.234 1.755 2.652 3.682 4.531 3.609 1.776-.078 2.444-1.125 4.583-1.125 2.109 0 2.73 1.125 4.531 1.078 1.9-.032 3.203-1.734 4.391-3.5 1.422-2.016 1.995-3.984 2.016-4.083-.047-.016-3.859-1.469-3.906-5.833zm-3.5-10.349C22.828 1.125 22.672-.5 22.625-.5c-1.422.063-3.141 1.016-4.141 2.266-.891 1.094-1.688 2.844-1.484 4.516 1.578.125 3.203-.797 4.266-2.094z"/>
+                        </svg>
+                        <div>
+                            <span class="store-label">Download on the</span>
+                            <span class="store-name">App Store</span>
+                        </div>
+                    </a>
+                    <a href="https://play.google.com/store/apps/details?id=com.snowresort.snow_resort_app&hl=cn" class="store-button" target="_blank" rel="noopener">
+                        <svg width="32" height="32" viewBox="0 0 512 512" fill="currentColor">
+                            <path d="M325.3 234.3L104.6 13l280.8 161.2-60.1 60.1zM47 0C34 6.8 25.3 19.2 25.3 35.3v441.3c0 16.1 8.7 28.5 21.7 35.3l256.6-256L47 0zm425.2 225.6l-58.9-34.1-65.7 64.5 65.7 64.5 60.1-34.1c18-14.3 18-46.5-1.2-60.8zM104.6 499l280.8-161.2-60.1-60.1L104.6 499z"/>
+                        </svg>
+                        <div>
+                            <span class="store-label">GET IT ON</span>
+                            <span class="store-name">Google Play</span>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <img src="../assets/logo-1024x1024.jpg" alt="逐风 Logo">
+                    <p>逐风 Step On · 网球</p>
+                    <p class="footer-tagline">让每一次挥拍都有迹可循</p>
+                </div>
+                <div class="footer-links">
+                    <div class="footer-column">
+                        <h4>产品</h4>
+                        <a href="#features">功能介绍</a>
+                        <a href="#screenshots">应用截图</a>
+                        <a href="#download">下载应用</a>
+                        <a href="../index.html">滑雪模式</a>
+                    </div>
+                    <div class="footer-column">
+                        <h4>支持</h4>
+                        <a href="../support.html">技术支持</a>
+                        <a href="../privacy.html">隐私政策</a>
+                        <a href="../delete-account.html">删除账号</a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 Works On My Machine LLC. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="../script.js"></script>
+</body>
+</html>

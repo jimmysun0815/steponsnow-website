@@ -64,6 +64,26 @@ aws s3 cp reset-password.html "s3://${BUCKET_NAME}/reset-password.html" \
     --cache-control "public, max-age=3600"
 
 echo ""
+echo "🎾 设置网球落地页的 Content-Type..."
+aws s3 cp download/index.html "s3://${BUCKET_NAME}/download/index.html" \
+    --profile ${PROFILE} \
+    --region ${REGION} \
+    --content-type "text/html; charset=utf-8" \
+    --cache-control "public, max-age=3600"
+
+aws s3 cp tennis/profile/index.html "s3://${BUCKET_NAME}/tennis/profile/index.html" \
+    --profile ${PROFILE} \
+    --region ${REGION} \
+    --content-type "text/html; charset=utf-8" \
+    --cache-control "public, max-age=3600"
+
+aws s3 cp tennis/activity/index.html "s3://${BUCKET_NAME}/tennis/activity/index.html" \
+    --profile ${PROFILE} \
+    --region ${REGION} \
+    --content-type "text/html; charset=utf-8" \
+    --cache-control "public, max-age=3600"
+
+echo ""
 echo "🎨 设置 CSS 和 JS 的 Content-Type..."
 aws s3 cp styles.css "s3://${BUCKET_NAME}/styles.css" \
     --profile ${PROFILE} \

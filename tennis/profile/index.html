@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>网球名片 - 逐风</title>
+    <meta name="description" content="查看这位球友的网球名片 - 逐风 App">
+    <meta property="og:type" content="profile">
+    <meta property="og:title" content="网球名片 - 逐风">
+    <meta property="og:description" content="查看这位球友的网球名片，下载逐风 App 加为好友。">
+    <meta property="og:image" content="https://steponsnow.com/assets/logo-1024x1024.jpg">
+    <link rel="icon" type="image/jpeg" href="/assets/logo-1024x1024.jpg">
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif;background:#f9faf8;min-height:100vh;color:#1a1a1a}
+        .page{max-width:480px;margin:0 auto;padding:40px 24px 60px;text-align:center}
+        .brand{display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:32px}
+        .brand img{width:32px;height:32px;border-radius:8px}
+        .brand span{font-size:14px;font-weight:700;color:#8e8e93}
+        .card{background:#fff;border-radius:20px;padding:32px 24px;box-shadow:0 4px 24px rgba(0,0,0,.06);margin-bottom:28px;position:relative;overflow:hidden}
+        .card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,#00A651,#FFCC00)}
+        .loading{display:flex;align-items:center;justify-content:center;gap:10px;padding:40px 0;color:#8e8e93}
+        .spinner{width:20px;height:20px;border:2px solid #00A65130;border-top-color:#00A651;border-radius:50%;animation:spin .8s linear infinite}
+        @keyframes spin{to{transform:rotate(360deg)}}
+        .avatar{width:72px;height:72px;border-radius:50%;border:3px solid #00A65130;object-fit:cover;margin-bottom:12px}
+        .avatar-fallback{width:72px;height:72px;border-radius:50%;border:3px solid #00A65130;background:#00A65115;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-size:28px;font-weight:700;color:#00A651}
+        .nickname{font-size:22px;font-weight:800;color:#1a1a1a;margin-bottom:6px}
+        .location{font-size:13px;color:#8e8e93;margin-bottom:12px}
+        .tags{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:16px}
+        .tag{padding:5px 12px;background:#00A65112;border-radius:14px;font-size:12px;font-weight:600;color:#00A651;border:1px solid #00A65120}
+        .bio{font-size:14px;color:#4a4a4a;font-style:italic;line-height:1.5;margin-bottom:16px;padding:0 8px}
+        .stats-row{display:flex;gap:0;margin-bottom:8px;background:#f9faf8;border-radius:12px;overflow:hidden}
+        .stat{flex:1;padding:16px 8px;text-align:center;position:relative}
+        .stat+.stat::before{content:'';position:absolute;left:0;top:20%;height:60%;width:1px;background:#e0e0e0}
+        .stat-val{font-size:24px;font-weight:800;color:#1a1a1a}
+        .stat-label{font-size:11px;color:#8e8e93;margin-top:2px}
+        .no-data{padding:24px 0;color:#8e8e93;font-size:14px}
+        .error-msg{color:#ff3b30;font-size:14px;padding:20px 0}
+        .cta{display:block;width:100%;padding:16px;background:#00A651;color:#fff;border:none;border-radius:14px;font-size:16px;font-weight:700;text-decoration:none;transition:all .2s;cursor:pointer;margin-bottom:12px}
+        .cta:hover{background:#008c45;transform:translateY(-1px);box-shadow:0 6px 20px rgba(0,166,81,.3)}
+        .dl-row{display:flex;gap:10px}
+        .dl-btn{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:12px;border-radius:12px;text-decoration:none;font-size:13px;font-weight:600;transition:all .2s}
+        .dl-btn.ios{background:#1a1a1a;color:#fff}
+        .dl-btn.android{background:#fff;color:#34A853;border:2px solid #34A853}
+        .dl-btn svg{width:18px;height:18px;fill:currentColor}
+        .footer{color:#8e8e93;font-size:11px;margin-top:40px}
+        .footer a{color:#00A651;text-decoration:none}
+        .hidden{display:none}
+    </style>
+</head>
+<body>
+    <div class="page">
+        <div class="brand">
+            <img src="/assets/logo-1024x1024.jpg" alt="" onerror="this.style.display='none'">
+            <span>逐风 · 网球</span>
+        </div>
+
+        <div class="card" id="card">
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <span>加载名片中...</span>
+            </div>
+            <div id="profile-content" class="hidden"></div>
+            <div id="error" class="hidden"></div>
+        </div>
+
+        <button class="cta" onclick="openApp()">在 App 中查看</button>
+
+        <div class="dl-row">
+            <a href="https://apps.apple.com/us/app/%E9%80%90%E9%A3%8E/id6754859759" class="dl-btn ios">
+                <svg viewBox="0 0 24 24"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+                App Store
+            </a>
+            <a href="https://play.google.com/store/apps/details?id=com.snowresort.snow_resort_app" class="dl-btn android">
+                <svg viewBox="0 0 24 24"><path d="M3.18 23.04L14.37 12 3.18.96C2.7 1.18 2.37 1.69 2.37 2.28v19.44c0 .59.33 1.1.81 1.32zm15.08-13.2L5.94.98l10.26 5.93 2.06 2.93zm.58 4.32L5.94 23.02l12.9-8.86 2.06-2.93zM20.08 11l2.02 1.18c.44.25.44.87 0 1.12L20.08 14.48l-2.37-1.74 2.37-1.74z"/></svg>
+                Google Play
+            </a>
+        </div>
+
+        <div class="footer">
+            © 2026 逐风 StepOnSnow · <a href="/">首页</a> · <a href="/download">下载 App</a>
+        </div>
+    </div>
+
+    <script>
+        const SUPABASE_ENVS = {
+            prod: {
+                url: 'https://jbucqclsoqcjvnefiyyw.supabase.co',
+                anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpidWNxY2xzb3FjanZuZWZpeXl3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU0OTI5NDMsImV4cCI6MjA4MTA2ODk0M30.wdlr90Kb42b6wb5ERnT7dZKn8ciKJZ0SzJXMWGjs9F4'
+            },
+            dev: {
+                url: 'https://avztlsrmiqigeivtmwha.supabase.co',
+                anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF2enRsc3JtaXFpZ2VpdnRtd2hhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE4NDg3ODksImV4cCI6MjA3NzQyNDc4OX0.yi6LQfbhRLcb1ZykoIUXKbWnadwwSsLVlOWjaPAbAlE'
+            }
+        };
+
+        const pathParts = window.location.pathname.split('/').filter(p => p);
+        const params = new URLSearchParams(window.location.search);
+        const userId = params.get('id') || pathParts[2];
+        const env = params.get('env') === 'dev' ? 'dev' : 'prod';
+        const SUPABASE_URL = SUPABASE_ENVS[env].url;
+        const SUPABASE_ANON_KEY = SUPABASE_ENVS[env].anonKey;
+
+        function gameTypeLabel(t) {
+            switch(t) {
+                case 'singles': return '底线型';
+                case 'doubles': return '双打型';
+                case 'both': return '全场型';
+                default: return '';
+            }
+        }
+
+        async function loadProfile() {
+            if (!userId) {
+                showError('无效的链接');
+                return;
+            }
+
+            try {
+                const [profileRes, tennisRes, statsRes] = await Promise.all([
+                    fetch(`${SUPABASE_URL}/rest/v1/user_profiles?user_id=eq.${userId}&select=nickname,avatar_url,city`, {
+                        headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${SUPABASE_ANON_KEY}` }
+                    }),
+                    fetch(`${SUPABASE_URL}/rest/v1/tennis_user_profiles?user_id=eq.${userId}&select=skill_level,preferred_game_type,tennis_bio`, {
+                        headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${SUPABASE_ANON_KEY}` }
+                    }),
+                    fetch(`${SUPABASE_URL}/rest/v1/tennis_play_sessions?user_id=eq.${userId}&end_time=not.is.null&select=id,duration_minutes,tennis_court_id`, {
+                        headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${SUPABASE_ANON_KEY}` }
+                    })
+                ]);
+
+                const profiles = await profileRes.json();
+                const tennisProfiles = await tennisRes.json();
+                const sessions = await statsRes.json();
+
+                if (!profiles.length) {
+                    showError('未找到该用户');
+                    return;
+                }
+
+                const p = profiles[0];
+                const tp = tennisProfiles.length ? tennisProfiles[0] : {};
+
+                const totalSessions = Array.isArray(sessions) ? sessions.length : 0;
+                const totalMinutes = Array.isArray(sessions) ? sessions.reduce((s, x) => s + (x.duration_minutes || 0), 0) : 0;
+                const courts = Array.isArray(sessions) ? new Set(sessions.map(x => x.tennis_court_id).filter(Boolean)).size : 0;
+                const hours = totalMinutes >= 60 ? Math.floor(totalMinutes / 60) + 'h' : totalMinutes + 'm';
+
+                document.title = `${p.nickname || '球友'} 的网球名片 - 逐风`;
+
+                const ogTitle = document.querySelector('meta[property="og:title"]');
+                if (ogTitle) ogTitle.content = `${p.nickname || '球友'} 的网球名片 - 逐风`;
+
+                renderProfile(p, tp, { totalSessions, hours, courts });
+            } catch (e) {
+                showError('加载失败，请稍后重试');
+            }
+        }
+
+        function renderProfile(p, tp, stats) {
+            const content = document.getElementById('profile-content');
+            const tags = [];
+            if (tp.skill_level) tags.push('NTRP ' + tp.skill_level);
+            const gt = gameTypeLabel(tp.preferred_game_type);
+            if (gt) tags.push(gt);
+
+            let html = '';
+            if (p.avatar_url) {
+                html += `<img src="${p.avatar_url}" class="avatar" onerror="this.outerHTML='<div class=avatar-fallback>${(p.nickname||'?')[0].toUpperCase()}</div>'">`;
+            } else {
+                html += `<div class="avatar-fallback">${(p.nickname || '?')[0].toUpperCase()}</div>`;
+            }
+            html += `<div class="nickname">${p.nickname || '球友'}</div>`;
+            if (p.city) html += `<div class="location">📍 ${p.city}</div>`;
+            if (tags.length) {
+                html += '<div class="tags">' + tags.map(t => `<span class="tag">${t}</span>`).join('') + '</div>';
+            }
+            if (tp.tennis_bio) {
+                html += `<div class="bio">"${tp.tennis_bio}"</div>`;
+            }
+            if (stats.totalSessions > 0) {
+                html += `<div class="stats-row">
+                    <div class="stat"><div class="stat-val">${stats.totalSessions}</div><div class="stat-label">场次</div></div>
+                    <div class="stat"><div class="stat-val">${stats.hours}</div><div class="stat-label">总时长</div></div>
+                    <div class="stat"><div class="stat-val">${stats.courts}</div><div class="stat-label">球场数</div></div>
+                </div>`;
+            } else {
+                html += '<div class="no-data">🎾 刚加入，来约球吧！</div>';
+            }
+
+            content.innerHTML = html;
+            document.getElementById('loading').classList.add('hidden');
+            content.classList.remove('hidden');
+        }
+
+        function showError(msg) {
+            document.getElementById('loading').classList.add('hidden');
+            const el = document.getElementById('error');
+            el.innerHTML = `<div class="error-msg">${msg}</div><div class="no-data">下载逐风 App 查看更多</div>`;
+            el.classList.remove('hidden');
+        }
+
+        function openApp() {
+            const scheme = userId ? `steponsnow://tennis/profile/${userId}` : 'steponsnow://';
+            window.location.href = scheme;
+            setTimeout(() => {
+                const ua = navigator.userAgent || '';
+                if (/iPad|iPhone|iPod/.test(ua)) {
+                    window.location.href = 'https://apps.apple.com/us/app/%E9%80%90%E9%A3%8E/id6754859759';
+                } else if (/android/i.test(ua)) {
+                    window.location.href = 'https://play.google.com/store/apps/details?id=com.snowresort.snow_resort_app';
+                }
+            }, 2000);
+        }
+
+        loadProfile();
+    </script>
+    <script src="/wx-guide.js"></script>
+</body>
+</html>
