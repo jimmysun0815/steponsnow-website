@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>奖金发放控制台 - 逐风 Step On</title>
+  <link rel="icon" type="image/jpeg" href="/assets/logo-1024x1024.jpg">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: linear-gradient(135deg, #0A0E1A 0%, #1E293B 100%);
+      min-height: 100vh; color: #fff; padding: 24px;
+    }
+    .wrap { max-width: 640px; margin: 0 auto; }
+    .head { text-align: center; margin: 12px 0 24px; }
+    .head .emoji { font-size: 40px; }
+    h1 { font-size: 22px; margin-top: 8px; }
+    .sub { color: #A0AEC0; font-size: 13px; margin-top: 6px; }
+    .banner {
+      background: rgba(34,197,94,.1); border: 1px solid rgba(34,197,94,.3); color: #86EFAC;
+      border-radius: 12px; padding: 12px 16px; font-size: 13px; margin-bottom: 20px; line-height: 1.5;
+    }
+    .row {
+      background: #1A1F2E; border-radius: 14px; padding: 16px; margin-bottom: 12px;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .row .info { flex: 1; min-width: 0; }
+    .row .name { font-weight: 700; font-size: 15px; }
+    .row .meta { color: #A0AEC0; font-size: 12px; margin-top: 4px; }
+    .amt { font-weight: 800; font-size: 17px; white-space: nowrap; }
+    .tag { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 6px; margin-right: 6px; }
+    .tag.prize { background: rgba(234,179,8,.15); color: #FDE047; }
+    .tag.refund { background: rgba(96,165,250,.15); color: #93C5FD; }
+    .btn {
+      padding: 10px 16px; border-radius: 10px; background: #22C55E; color: #fff; font-weight: 700;
+      font-size: 13px; border: none; cursor: pointer; white-space: nowrap;
+    }
+    .btn[disabled] { opacity: .5; cursor: default; }
+    .paid { color: #22C55E; font-weight: 700; font-size: 13px; white-space: nowrap; }
+    .center { text-align: center; color: #A0AEC0; padding: 40px 0; }
+    .err { color: #F87171; }
+    .backbtn {
+      display: block; text-align: center; margin: 28px auto 0; padding: 14px; border-radius: 12px;
+      background: #334155; color: #fff; font-weight: 700; text-decoration: none; max-width: 240px;
+    }
+    dialog { border: none; border-radius: 16px; padding: 24px; background: #1A1F2E; color: #fff; max-width: 360px; }
+    dialog input {
+      width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #334155; background: #0F1419;
+      color: #fff; margin: 12px 0; font-size: 14px;
+    }
+    .dlg-actions { display: flex; gap: 10px; }
+    .dlg-actions button { flex: 1; padding: 12px; border-radius: 10px; border: none; font-weight: 700; cursor: pointer; }
+    .cancel { background: #334155; color: #fff; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="head">
+      <div class="emoji">💰</div>
+      <h1 id="ttl">奖金发放控制台</h1>
+      <div class="sub" id="sub"></div>
+    </div>
+    <div class="banner">
+      标记「已发放」前，请先在 Stripe 后台（或线下）实际完成对该收款人的转账 /
+      退款，再回此处点击记录。此操作会推送通知给收款人，且不可撤销。
+    </div>
+    <div id="list"><div class="center">加载中…</div></div>
+    <a class="backbtn" id="back" href="#">返回 App</a>
+  </div>
+
+  <dialog id="dlg">
+    <div style="font-weight:700;font-size:16px;">标记已发放</div>
+    <div style="color:#A0AEC0;font-size:13px;margin-top:8px;" id="dlg-desc"></div>
+    <input id="ref" placeholder="Stripe transfer/refund ID（可选）" />
+    <div class="dlg-actions">
+      <button class="cancel" id="dlg-cancel">取消</button>
+      <button class="btn" id="dlg-ok" style="flex:1;">确认已发放</button>
+    </div>
+  </dialog>
+
+  <script>
+    const FN = {
+      prod: "https://jbucqclsoqcjvnefiyyw.supabase.co/functions/v1",
+      dev:  "https://avztlsrmiqigeivtmwha.supabase.co/functions/v1",
+    };
+    const q = new URLSearchParams(location.search);
+    const env = FN[q.get("env")] ? q.get("env") : "prod";
+    const base = FN[env];
+    const token = q.get("token");
+    let currency = "CAD";
+
+    const fmt = (cents) => (cents / 100).toFixed(2);
+
+    async function api(path, body) {
+      const res = await fetch(`${base}/${path}`, {
+        method: "POST", headers: { "content-type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      const data = await res.json().catch(() => ({}));
+      return { ok: res.ok, status: res.status, data };
+    }
+
+    function errText(e) {
+      const map = {
+        expired: "此发放链接已过期（15 分钟有效）。请回到 App 重新点击「发放奖金」。",
+        bad_signature: "链接校验失败，请勿手动修改链接。",
+        wrong_kind: "链接类型错误。",
+        tournament_not_found: "锦标赛不存在。",
+      };
+      return map[e] || ("加载失败：" + (e || ""));
+    }
+
+    async function load() {
+      if (!token) { document.getElementById("list").innerHTML = '<div class="center err">链接无效：缺少凭证。</div>'; return; }
+      const { ok, data } = await api("payout-list", { token });
+      if (!ok) { document.getElementById("list").innerHTML = `<div class="center err">${errText(data.error)}</div>`; return; }
+      const t = data.tournament; currency = t.currency || "CAD";
+      document.getElementById("ttl").textContent = t.title;
+      document.getElementById("back").href = `steponsnow://tournament/${t.id}`;
+      render(data.payouts || []);
+    }
+
+    function render(payouts) {
+      const pending = payouts.filter(p => p.status === "pending").length;
+      document.getElementById("sub").textContent =
+        `共 ${payouts.length} 笔 · 待发放 ${pending} 笔`;
+      const list = document.getElementById("list");
+      if (!payouts.length) { list.innerHTML = '<div class="center">暂无奖金 / 退款记录。</div>'; return; }
+      list.innerHTML = "";
+      for (const p of payouts) {
+        const el = document.createElement("div");
+        el.className = "row";
+        const typeTag = p.type === "prize"
+          ? `<span class="tag prize">奖金${p.placement ? " · 第"+p.placement+"名" : ""}</span>`
+          : `<span class="tag refund">退款</span>`;
+        const action = p.status === "paid"
+          ? `<span class="paid">✓ 已发放</span>`
+          : `<button class="btn" data-id="${p.id}">标记已发放</button>`;
+        el.innerHTML =
+          `<div class="info"><div class="name">${escapeHtml(p.recipient_nickname)}</div>
+           <div class="meta">${typeTag}${p.status === "paid" && p.stripe_transfer_id ? "参考号 "+escapeHtml(p.stripe_transfer_id) : ""}</div></div>
+           <div class="amt">${fmt(p.amount_cents)} ${currency}</div>${action}`;
+        list.appendChild(el);
+      }
+      list.querySelectorAll("button[data-id]").forEach(b => {
+        b.onclick = () => openDialog(b.dataset.id, payouts.find(x => x.id === b.dataset.id));
+      });
+    }
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+    }
+
+    const dlg = document.getElementById("dlg");
+    let currentId = null;
+    function openDialog(id, p) {
+      currentId = id;
+      document.getElementById("dlg-desc").textContent =
+        `${p.recipient_nickname} · ${fmt(p.amount_cents)} ${currency}（${p.type === "prize" ? "奖金" : "退款"}）`;
+      document.getElementById("ref").value = "";
+      dlg.showModal();
+    }
+    document.getElementById("dlg-cancel").onclick = () => dlg.close();
+    document.getElementById("dlg-ok").onclick = async () => {
+      const ok = document.getElementById("dlg-ok");
+      ok.disabled = true; ok.textContent = "提交中…";
+      const ref = document.getElementById("ref").value.trim();
+      const res = await api("payout-mark", { token, payout_id: currentId, transfer_ref: ref });
+      ok.disabled = false; ok.textContent = "确认已发放";
+      dlg.close();
+      if (!res.ok && !res.data.ok) { alert(errText(res.data.error)); return; }
+      await load();
+    };
+  </script>
+</body>
+</html>
