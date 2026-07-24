@@ -1,0 +1,84 @@
+name: Deploy Website to S3 (Dev)
+
+# dev.steponsnow.com —— 测试环境，和 prod 用【同一份代码】。
+# 页面按 location.hostname 自动选后端：dev.* → Dev Supabase 函数 + test Stripe。
+#
+# 触发：
+#   - push 到 main：与 prod 同步部署（保证 dev 始终等于最新代码，不产生分叉）
+#   - 手动 workflow_dispatch：随时把当前分支推到 dev 验证
+# 若日后想把 dev 当"上线前灰度门禁"，把下面 branches 改成 [dev] 即可
+# （代码不分叉——按 hostname 自配后端，dev 分支合进 main 就完成晋级）。
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+env:
+  AWS_REGION: us-west-2
+  S3_BUCKET: dev.steponsnow.com
+
+jobs:
+  deploy:
+    name: Deploy to S3 (Dev)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Sync files to S3 (dev)
+        run: |
+          echo "📦 同步文件到 dev bucket（短缓存，改动秒级可见）..."
+          # dev 环境用短缓存换取新鲜度；content-type 由 aws cli 按扩展名自动判断
+          aws s3 sync . "s3://${{ env.S3_BUCKET }}/" \
+            --exclude ".git/*" \
+            --exclude ".github/*" \
+            --exclude "*.sh" \
+            --exclude "*.md" \
+            --exclude ".DS_Store" \
+            --exclude "node_modules/*" \
+            --cache-control "public, max-age=60" \
+            --delete
+
+      - name: Fix Content-Type on tournament pages
+        run: |
+          echo "🏆 显式设置锦标赛支付页的 Content-Type（保险）..."
+          for page in \
+            "tournament/pay/index.html" \
+            "tournament/pay-success/index.html" \
+            "tournament/pay-cancel/index.html" \
+            "tournament/payout/index.html"; do
+            if [ -f "$page" ]; then
+              aws s3 cp "$page" "s3://${{ env.S3_BUCKET }}/$page" \
+                --content-type "text/html; charset=utf-8" \
+                --cache-control "public, max-age=60"
+            fi
+          done
+
+      - name: Invalidate CloudFront cache (dev)
+        run: |
+          if [ -n "${{ secrets.CLOUDFRONT_DISTRIBUTION_ID_DEV }}" ]; then
+            echo "🔄 清除 dev CloudFront 缓存..."
+            aws cloudfront create-invalidation \
+              --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID_DEV }} \
+              --paths "/*"
+            echo "✅ dev CloudFront 缓存已清除"
+          else
+            echo "⚠️ 未配置 CLOUDFRONT_DISTRIBUTION_ID_DEV，跳过缓存清除"
+            echo "   （若 dev 直接走 S3 静态托管、没套 CloudFront，可忽略）"
+          fi
+
+      - name: Deployment summary
+        run: |
+          echo "✅ Dev 部署完成"
+          echo "🌐 https://dev.steponsnow.com"
+          echo "📦 s3://${{ env.S3_BUCKET }}"
+          echo "🔌 后端：页面按 hostname 自动连 Dev Supabase 函数 + test Stripe"

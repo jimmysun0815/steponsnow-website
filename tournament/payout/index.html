@@ -80,13 +80,17 @@
   </dialog>
 
   <script>
+    // Edge Function 白名单（写死两套，不接受 URL 传入任意 api 地址，防伪造）
     const FN = {
       prod: "https://jbucqclsoqcjvnefiyyw.supabase.co/functions/v1",
       dev:  "https://avztlsrmiqigeivtmwha.supabase.co/functions/v1",
     };
+    // 按【当前域名】自动选后端（同 pay 页）
+    const IS_DEV = location.hostname.startsWith("dev.") ||
+                   location.hostname === "localhost" ||
+                   location.hostname === "127.0.0.1";
+    const base = FN[IS_DEV ? "dev" : "prod"];
     const q = new URLSearchParams(location.search);
-    const env = FN[q.get("env")] ? q.get("env") : "prod";
-    const base = FN[env];
     const token = q.get("token");
     let currency = "CAD";
 
